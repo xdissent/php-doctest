@@ -28,9 +28,32 @@ class DocTestParser
     /**
      * A regex to determine whether a line is blank or is a comment.
      *
+     * This regex does not check for multiline comments, which are basically
+     * impossible to do in doctests that reside within another multiline
+     * comment in a source file anyway. It does check for both shell style
+     * and C++ style single line comments.
+     *
      * @var string
      */
-    private $_is_blank_or_comment_re = '/^[ ]*(\/\/.*)?$/';
+    private $_is_blank_or_comment_re = '/^[ ]*(#.*)?$/';
+    
+    /**
+     * A regex to find doctest option directives.
+     *
+     * This regular expression looks for option directives in the
+     * source code of an example.  Option directives are comments
+     * starting with "doctest:".  Warning: this may give false
+     * positives for string-literals that contain the strings
+     * "#doctest:" or "//doctest:'.  Eliminating these false positives would 
+     * require actually parsing the string; but we limit them by ignoring any
+     * line containing "#doctest:" or "//doctest:" that is *followed* by a 
+     * quote mark.
+     *
+     * @var string
+     */
+    private $_option_directive_re = '/(?:#|\/\/)\s*doctest:\s*([^\n\'"]*)$/m';
+    
+    private $_option_flags_by_name;
     
     /**
      * Initializes a DocTestParser instance.
@@ -65,6 +88,14 @@ class DocTestParser
             \s* $                # toss trailing whitespace on the header.
             (?P<stack> .*?)      # don\'t blink: absorb stuff until...
             ^ (?P<msg> \w+ .*)   #     a line *starts* with alphanum./xms';
+    
+        /**
+         * Create option flags array.
+         */
+        $this->_option_flags_by_name = array(
+            'testoption' => 1,
+            'anotheroption' => 2
+        );
     }
     
     /**
@@ -106,7 +137,7 @@ class DocTestParser
      */
     private function _isBlankOrComment($line)
     {
-        if (preg_match($this->_is_blank_or_comment_re, $string)) {
+        if (preg_match($this->_is_blank_or_comment_re, $line)) {
             return true;
         }
         return false;
@@ -148,6 +179,9 @@ class DocTestParser
         $charno = 0;
         $lineno = 0;
         
+        /**
+         * Find all examples in the string.
+         */
         preg_match_all($this->_example_re, $string, $matches, PREG_OFFSET_CAPTURE);
         
         /**
@@ -184,7 +218,7 @@ class DocTestParser
              */
             $info = $this->_parseExample($m, $name, $lineno);
             
-            // if (!$this->_isBlankOrComment($info['source'])) {
+            if (!$this->_isBlankOrComment($info['source'])) {
                 $output[] = new Example(
                     $info['source'],
                     $info['want'],
@@ -193,7 +227,7 @@ class DocTestParser
                     $min_indent + strlen($m['indent'][0]),
                     $info['options']
                 );
-            //}
+            }
             
             /**
              * Update lineno (lines inside this example.)
@@ -218,11 +252,116 @@ class DocTestParser
     
     private function _parseExample($m, $name, $lineno)
     {
+        $indent = strlen($m['indent'][0]);
+        
+        # Divide source into lines; check that they're properly
+        # indented; and then strip their indentation & prompts.
+        /*
+        source_lines = m.group('source').split('\n')
+        self._check_prompt_blank(source_lines, indent, name, lineno)
+        self._check_prefix(source_lines[1:], ' '*indent + '.', name, lineno)
+        source = '\n'.join([sl[indent+4:] for sl in source_lines])
+        */
+        $source = $m['source'][0];
+                
+        # Divide want into lines; check that it's properly indented; and
+        # then strip the indentation.  Spaces before the last newline should
+        # be preserved, so plain rstrip() isn't good enough.
+        /*
+        want = m.group('want')
+        want_lines = want.split('\n')
+        if len(want_lines) > 1 and re.match(r' *$', want_lines[-1]):
+            del want_lines[-1]  # forget final newline & spaces after it
+        self._check_prefix(want_lines, ' '*indent, name,
+                           lineno + len(source_lines))
+        want = '\n'.join([wl[indent:] for wl in want_lines])
+        */
+        $want = $m['want'][0];
+        
+        /**
+         * If want contains a traceback message, then extract it.
+         */
+        if (preg_match($this->_exception_re, $want, $m)) {
+            $exc_msg = $m['msg'];
+        } else {
+            $exc_msg = null;
+        }
+
+        /**
+         * Extract options from the source.
+         */
+        $options = $this->_findOptions($source, $name, $lineno);
+        
         return array(
-            'source' => 'source',
-            'want' => 'want',
-            'exc_msg' => 'exc_msg',
-            'options' => 'options'
+            'source' => $source,
+            'want' => $want,
+            'exc_msg' => $exc_msg,
+            'options' => $options
         );
+    }
+    
+    /**
+     * Return an array containing option overrides extracted from the source.
+     *
+     * "name" is the string's name, and "lineno" is the line number
+     * where the example starts; both are used for error messages.
+     *
+     * @param string $source The source from which to extract options.
+     * @param string $name   The name of the source.
+     * @param string $lineno The line number of the source.
+     *
+     * @return array
+     */
+    private function _findOptions($source, $name, $lineno)
+    {
+        $options = array();
+        
+        if (preg_match($this->_option_directive_re, $source, $m)) {
+            $option_strings = explode(' ', str_replace(',', ' ', $m[1]));
+            foreach ($option_strings as $option) {
+                /**
+                 * Check for invalid option.
+                 */
+                $posneg = substr($option, 0, 1);
+                $option_name = substr($option, 1);
+                if (($posneg != '+' && $posneg != '-') 
+                    || !array_key_exists(
+                        $option_name, 
+                        $this->_option_flags_by_name
+                    )
+                ) {
+                    $msg = sprintf(
+                        'line %d of the doctest for %s has an invalid ' .
+                            'option: %s',
+                        $lineno + 1,
+                        $name,
+                        $option
+                    );
+                    throw new UnexpectedValueException($msg);
+                }
+                $flag = $this->_option_flags_by_name[$option_name];
+                if ($posneg == '+') {
+                    $options[$flag] = true;
+                } else {
+                    $options[$flag] = false;
+                }
+            }
+        }
+        
+        /**
+         * Make sure blank lines or comments don't specify options.
+         */
+        if (count($options) && $this->_isBlankOrComment($source)) {
+            $msg = sprintf(
+                'line %d of the doctest for %s has an option directive '.
+                    'on a line with no example: %s',
+                $lineno,
+                $name,
+                $source
+            );
+            throw new UnexpectedValueException($msg);
+        }
+                             
+        return $options;
     }
 }

@@ -94,8 +94,8 @@ expected output
 Well that was cool.
 
 Does this work too?
-php > Some more
-php > And again.
+php > Some more 
+php > And again. # doctest: +testoption
 expect THIS why dontcha?
 
 
