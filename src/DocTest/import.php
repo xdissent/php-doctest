@@ -1,6 +1,6 @@
 <?php
 
-require dirname(__FILE__) . '/DocTestParser.php';
+require dirname(__FILE__) . '/Parser.php';
 
 class DocTest
 {
@@ -85,7 +85,7 @@ class DocTest
     }
 }
 
-$p = new DocTestParser;
+$p = new DocTest_Parser;
 $o = $p->parse('This is a test:
 php > PHP CODE HERE
 expected output

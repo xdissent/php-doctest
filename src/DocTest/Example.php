@@ -67,9 +67,25 @@ class DocTest_Example
      */
     public $options;
     
+    /**
+     * Instantiate an example.
+     *
+     * @param string  $source  The source for the example.
+     * @param string  $want    The expected example output.
+     * @param string  $exc_msg The exception message expected.
+     * @param integer $lineno  The line number on which the example begins.
+     * @param integer $indent  The number of spaces indenting the example.
+     * @param array   $options The doctest options to use with the example.
+     *
+     * @return null
+     */
     public function __construct($source, $want, $exc_msg=null, $lineno=0, 
         $indent=0, $options=null
     ) {
+        /**
+         * Normalize variables.
+         */
+         
         if (substr($source, -1) !== "\n") {
             $source .= "\n";
         }
@@ -86,6 +102,9 @@ class DocTest_Example
             $options = array();
         }
         
+        /**
+         * Store the example's data.
+         */
         $this->source = $source;
         $this->want = $want;
         $this->exc_msg = $exc_msg;
