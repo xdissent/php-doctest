@@ -1,0 +1,1 @@
+basename check worksdebug_backtrace works
