@@ -86,19 +86,21 @@ class DocTest
 }
 
 $p = new DocTestParser;
-$o = $p->parse('
-This is a test:
+$o = $p->parse('This is a test:
 php > PHP CODE HERE
 expected output
 
 Well that was cool.
 
 Does this work too?
-php > Some more 
+php > Some more
+want me
+php > No wantin!
 php > And again. # doctest: +testoption
+php { multi
+php { line code.
 expect THIS why dontcha?
 
 
-And this is the end.
-');
+And this is the end.');
 var_dump($o);

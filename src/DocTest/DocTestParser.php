@@ -69,7 +69,7 @@ class DocTestParser
             # Source consists of a PS1 line followed by zero or more PS2 lines.
             (?P<source>
                 (?:^(?P<indent> [ ]*) php[ ]>.*)    # PS1 line
-                (?:\n           [ ]*  \.\.\. .*)*)  # PS2 lines
+                (?:\n           [ ]*  php[ ]{.*)*)  # PS2 lines
             \n?
             # Want consists of any non-blank lines that do not start with PS1.
             (?P<want> (?:(?![ ]*$)        # Not a blank line
@@ -219,7 +219,7 @@ class DocTestParser
             $info = $this->_parseExample($m, $name, $lineno);
             
             if (!$this->_isBlankOrComment($info['source'])) {
-                $output[] = new Example(
+                $output[] = new DocTest_Example(
                     $info['source'],
                     $info['want'],
                     $info['exc_msg'],
@@ -254,15 +254,22 @@ class DocTestParser
     {
         $indent = strlen($m['indent'][0]);
         
-        # Divide source into lines; check that they're properly
-        # indented; and then strip their indentation & prompts.
-        /*
-        source_lines = m.group('source').split('\n')
-        self._check_prompt_blank(source_lines, indent, name, lineno)
-        self._check_prefix(source_lines[1:], ' '*indent + '.', name, lineno)
-        source = '\n'.join([sl[indent+4:] for sl in source_lines])
-        */
-        $source = $m['source'][0];
+        /**
+         * Divide source into lines; check that they're properly
+         * indented; and then strip their indentation & prompts.
+         */
+        $source_lines = explode("\n", $m['source'][0]);
+        
+        /**
+         * We aren't doing this yet...
+         * self._check_prompt_blank(source_lines, indent, name, lineno)
+         * self._check_prefix(source_lines[1:], ' '*indent + '.', name, lineno)
+         */
+        foreach ($source_lines as &$sl) {
+            $sl = substr($sl, $indent + 6);
+        }
+        unset($sl);
+        $source = implode("\n", $source_lines);
                 
         # Divide want into lines; check that it's properly indented; and
         # then strip the indentation.  Spaces before the last newline should
