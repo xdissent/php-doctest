@@ -100,7 +100,13 @@ php > And again. # doctest: +testoption
 php { multi
 php { line code.
 expect THIS why dontcha?
-
+php > throw new Exception("this\nis a\n multiline");
+PHP Fatal error:  Uncaught exception \'Exception\' with message \'this
+is a
+ multiline\' in php shell code:1
+Stack trace:
+#0 {main}
+  thrown in php shell code on line 1
 
 And this is the end.');
 var_dump($o);

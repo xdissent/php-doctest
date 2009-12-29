@@ -53,6 +53,11 @@ class DocTestParser
      */
     private $_option_directive_re = '/(?:#|\/\/)\s*doctest:\s*([^\n\'"]*)$/m';
     
+    /**
+     * An array of option flags, keyed off the option name.
+     *
+     * @var array
+     */
     private $_option_flags_by_name;
     
     /**
@@ -75,20 +80,33 @@ class DocTestParser
             (?P<want> (?:(?![ ]*$)        # Not a blank line
                          (?![ ]*php[ ]>)  # Not a line starting with PS1
                          .*$\n?           # But any other line
-                      )*)/xm';
-        
+                      )*)
+            /xm';
+
         $this->_exception_re = '/
-            # Grab the traceback header.  Different versions of Python have
-            # said different things on the first traceback line.
-            ^(?P<hdr> Traceback\ \(
-                (?: most\ recent\ call\ last
-                |   innermost\ last
-                ) \) :
+            # An exception triggers a fatal error.
+            ^(?P<hdr>PHP\ Fatal\ error:\s+ Uncaught\ exception\ \'
+            
+                (?P<type> \w+)          # Type of exception.
+            \'\ with\ message\ \'
+                (?P<msg> \w+ .*)        # The message.
+            \'\ in\ 
+                (?P<loc>[\w\ ]+)        # The location.
+            :
+                (?P<line>\d+)           # The line number.
             )
-            \s* $                # toss trailing whitespace on the header.
-            (?P<stack> .*?)      # don\'t blink: absorb stuff until...
-            ^ (?P<msg> \w+ .*)   #     a line *starts* with alphanum./xms';
-    
+            \s* $ \n?
+            
+            Stack\ trace: 
+            \s* $ \n?
+                (?P<stack> .*)          # The stack trace.
+            \s+ thrown\ in\ 
+                (?P<loc2>[\w\ ]+)       # The location (again!)
+            on\ line\ 
+                (?P<line2>\d+)          # The line number (AGAIN!)
+            $
+            /xms';
+
         /**
          * Create option flags array.
          */
@@ -96,6 +114,11 @@ class DocTestParser
             'testoption' => 1,
             'anotheroption' => 2
         );
+        
+        /**
+         * Populate the available option flags.
+         */
+        
     }
     
     /**
@@ -149,6 +172,11 @@ class DocTestParser
      * Line numbers for the Examples are 0-based.  The optional
      * argument `name` is a name identifying this string, and is only
      * used for error messages.
+     *
+     * @param string $string The text to parse.
+     * @param string $name   The name of the string to parse.
+     *
+     * @return array
      */
     public function parse($string, $name='<string>')
     {
@@ -250,6 +278,15 @@ class DocTestParser
         return $output;
     }
     
+    /**
+     * Parses an example.
+     *
+     * @param array   $m      A regex match array.
+     * @param string  $name   The name of the example.
+     * @param integer $lineno The line number at which this example appears.
+     *
+     * @return array
+     */
     private function _parseExample($m, $name, $lineno)
     {
         $indent = strlen($m['indent'][0]);
@@ -259,17 +296,18 @@ class DocTestParser
          * indented; and then strip their indentation & prompts.
          */
         $source_lines = explode("\n", $m['source'][0]);
-        
-        /**
-         * We aren't doing this yet...
-         * self._check_prompt_blank(source_lines, indent, name, lineno)
-         * self._check_prefix(source_lines[1:], ' '*indent + '.', name, lineno)
-         */
         foreach ($source_lines as &$sl) {
             $sl = substr($sl, $indent + 6);
         }
         unset($sl);
         $source = implode("\n", $source_lines);
+                
+        /**
+         * We aren't doing this yet...
+         *
+         * self._check_prompt_blank(source_lines, indent, name, lineno)
+         * self._check_prefix(source_lines[1:], ' '*indent + '.', name, lineno)
+         */
                 
         # Divide want into lines; check that it's properly indented; and
         # then strip the indentation.  Spaces before the last newline should
