@@ -1,6 +1,9 @@
-===========
-PHP DocTest
-===========
+===============
+DocTest for PHP
+===============
+
+.. caution:: This package is a work in progress, and does *not* guarantee any
+   useful functionality yet. Your mileage may **seriously** vary.
 
 Todo
 ----
