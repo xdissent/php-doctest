@@ -1,6 +1,14 @@
 <?php
 
+/**
+ * Import the DocTest_Parser class.
+ */
 require dirname(__FILE__) . '/Parser.php';
+
+/**
+ * Import the DocTest_Finder class.
+ */
+require dirname(__FILE__) . '/Finder.php';
 
 class DocTest
 {
@@ -15,6 +23,14 @@ class DocTest
         $this->lineno = $lineno;
     }
     
+    /**
+     * Returns a string representation of a DocTest.
+     *
+     * The string returned will contain the number of examples as well
+     * as the filename and line number of the DocTest.
+     *
+     * @return string
+     */
     public function __toString()
     {
         if (!count($this->examples)) {
@@ -32,9 +48,42 @@ class DocTest
             $examples
         );
     }
-    
-    public static function testFile($file)
+     
+    /* Tests examples in the given file.
+     *
+     * The array returned will contain the number of test failures encountered
+     * at offset 0 and the number of tests found at offset 1.
+     *
+     * @param string  $filename        The name of the file to test.
+     * @param boolean $module_relative Whether to use a module relative path. By
+     *                                 default, the calling module's path will 
+     *                                 be used, or the package parameter if set.
+     * @param string  $name            The name of the test. The basename of the
+     *                                 filename will be used by default.
+     * @param string  $package         A package whose path should be used for
+     *                                 the relative module base path.
+     * @param array   $globs           
+     * @param boolean $verbose
+     * @param boolean $report
+     * @param integer $optionflags     The or'ed combination of flags to use.
+     * @param array   $extraglobs
+     * @param boolean $raise_on_errors
+     * @param object  $parser
+     * @param string  $encoding        The encoding to use to convert the file
+     *                                 to unicode.
+     *
+     * @return array
+     */
+    public static function testFile($filename, $module_relative=true,
+        $name=null, $package=null, $globs=null, $verbose=null, $report=true,
+        $optionflags=0, $extraglobs=null, $raise_on_error=false, 
+        $parser=null, $encoding=null)
     {
+        if (is_null($parser)) {
+            $parser = new DocTest_Parser();
+        }
+        
+        
         $bt = debug_backtrace();
         
         $mod_file = $bt[0]['file'];
@@ -84,29 +133,3 @@ class DocTest
         
     }
 }
-
-$p = new DocTest_Parser;
-$o = $p->parse('This is a test:
-php > PHP CODE HERE
-expected output
-
-Well that was cool.
-
-Does this work too?
-php > Some more
-want me
-php > No wantin!
-php > And again. # doctest: +testoption
-php { multi
-php { line code.
-expect THIS why dontcha?
-php > throw new Exception("this\nis a\n multiline");
-PHP Fatal error:  Uncaught exception \'Exception\' with message \'this
-is a
- multiline\' in php shell code:1
-Stack trace:
-#0 {main}
-  thrown in php shell code on line 1
-
-And this is the end.');
-var_dump($o);
