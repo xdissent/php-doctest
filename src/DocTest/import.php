@@ -3,15 +3,27 @@
 /**
  * Import the DocTest_Parser class.
  */
-require dirname(__FILE__) . '/Parser.php';
+require_once dirname(__FILE__) . '/Parser.php';
 
 /**
  * Import the DocTest_Finder class.
  */
-require dirname(__FILE__) . '/Finder.php';
+require_once dirname(__FILE__) . '/Finder.php';
+
+/**
+ * Import the DocTest_Finder class.
+ */
+require_once dirname(__FILE__) . '/Runner.php';
 
 class DocTest
 {
+    /**
+     * A static array of option flags values keyed by option name.
+     *
+     * @var array
+     */
+    public static $option_flags_by_name;
+    
     public function __construct($examples, $globs, $name, $filename, 
         $lineno, $docstring
     ) {
@@ -79,57 +91,195 @@ class DocTest
         $optionflags=0, $extraglobs=null, $raise_on_error=false, 
         $parser=null, $encoding=null)
     {
+        /**
+         * Check for obvious path error.
+         */
+        if (!is_null($package) && !$module_relative) {
+            throw new UnexpectedValueException(
+                'Package may only be specified for module-relative paths.'
+            );
+        }
+        
+        /**
+         * Initialize parser.
+         */
         if (is_null($parser)) {
             $parser = new DocTest_Parser();
         }
         
+        /**
+         * Relativize the path
+         */
+        $info = self::_loadTestFile($filename, $package, $module_relative);
+        $text = $info[0];
+        $filename = $info[1];
         
-        $bt = debug_backtrace();
+        /**
+         * If no name was given, then use the file's name.
+         */
+        if (is_null($name)) {
+            $name = basename($filename);
+        }
         
-        $mod_file = $bt[0]['file'];
+        /**
+         * Assemble the globals.
+         */
+        if (is_null($globs)) {
+            $globs = array();
+        }
+        if (!is_null($extraglobs)) {
+            $globs = array_merge($globs, $extraglobs);
+        }
         
-        return self::testModCLI($file, $verbose);
+        if ($raise_on_error) {
+            $runner = new DocTest_DebugRunner(null, $verbose, $optionflags);
+        } else {
+            $runner = new DocTest_Runner(null, $verbose, $optionflags);
+        }
+        
+        /**
+         * Convert encoding
+         */
+        if (!is_null($encoding) && function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, $encoding);
+        }
+        
+        /**
+         * Read the file, convert it to a test, and run it.
+         */
+        $test = $parser->getDocTest($text, $globs, $name, $filename, 0);
+        $runner->run($test);
+        
+        if ($report) {
+            //$runner->summarize();
+        }
+        
+        // return new DocTest_TestResults($runner->failures, $runner->tries);
+        
+        //var_dump($runner);
     }
     
-    public static function testMod()
+    private static function _loadTestFile($filename, $package, $module_relative)
     {
-        $bt = debug_backtrace();
-        
         /**
-         * Find the file to test.
+         * Determine the absolute file path.
          */
-        $mod_file = $bt[0]['file'];
+        if ($module_relative) {
         
-        /**
-         * Determine whether the test was requested through a web server.
-         */
-        if (!count($_SERVER['argv'])) {
             /**
-             * Run the HTML tests.
+             * Use the calling module's dir as a base path if no package is set.
              */
-            return self::testModHTML($mod_file);
-        }
+            if (is_null($package)) {
+                /**
+                 * Get a backtrace.
+                 */
+                $bt = debug_backtrace();
                 
-        /**
-         * Determine whether to output verbose CLI tests.
-         */
-        if (in_array('-v', $_SERVER['argv'])) {
-            return self::testModCLI($mod_file, true);
+                /**
+                 * Find the first file in the trace that's not this one.
+                 */
+                foreach ($bt as $trace) {
+                    if ($trace['file'] !== __FILE__) {
+                        /**
+                         * Found calling file. Get the dir and kill the loop.
+                         */
+                        $package = dirname($trace['file']);
+                        break;
+                    }
+                }
+            }
+            
+            /**
+             * Ensure package ends in a slash.
+             */
+            if (substr($package, -1) !== '/') {
+                $package .= '/';
+            }
+            
+            /**
+             * Add the filename to the package dir.
+             */
+            $filename = $package . $filename;
         }
         
         /**
-         * Run the non-verbose test CLI tests.
+         * Return the file as a string along with the resolved filename.
          */
-        return self::testModCLI($mod_file);
+        return array(file_get_contents($filename), $filename);
     }
     
-    protected static function testModHTML($file)
+    /**
+     * Registers available options.
+     */
+    public static function registerOptions()
     {
-        echo 'Testing HTML File: ' . $file;
-    }
-    
-    protected static function testModCLI($file, $verbose=false)
-    {
+        /**
+         * Protect against multiple calls.
+         */
+        if (!is_null(self::$option_flags_by_name)) {
+            return;
+        }
+
+        /**
+         * Initialize options flag array.
+         */
+        self::$option_flags_by_name = array();
         
+        /**
+         * The possible base options.
+         */
+        $options = array(
+            'DONT_ACCEPT_TRUE_FOR_1',
+            'DONT_ACCEPT_BLANKLINE',
+            'NORMALIZE_WHITESPACE',
+            'ELLIPSIS',
+            'SKIP',
+            'IGNORE_EXCEPTION_DETAIL',
+            'REPORT_UDIFF',
+            'REPORT_NDIFF',
+            'REPORT_CDIFF',
+            'REPORT_ONLY_FIRST_FAILURE'
+        );
+        
+        /**
+         * Define a global namespaced constant for each option and add it
+         * to the static named options array.
+         */
+        foreach ($options as $i => $option) {
+            $name = 'DOCTEST_' . $option;
+            define($name, 1 << $i);
+            self::$option_flags_by_name[$name] = constant($name);
+        }
+        
+        /**
+         * Create comparison flags combination.
+         */
+        $comp_flags = DOCTEST_DONT_ACCEPT_TRUE_FOR_1 |
+            DOCTEST_DONT_ACCEPT_BLANKLINE |
+            DOCTEST_NORMALIZE_WHITESPACE |
+            DOCTEST_ELLIPSIS |
+            DOCTEST_SKIP |
+            DOCTEST_IGNORE_EXCEPTION_DETAIL;
+        define('DOCTEST_COMPARISON_FLAGS', $comp_flags);
+        
+        /**
+         * Create reporting flags combination.
+         */
+        $rep_flags = DOCTEST_REPORT_UDIFF |
+            DOCTEST_REPORT_CDIFF |
+            DOCTEST_REPORT_NDIFF |
+            DOCTEST_REPORT_ONLY_FIRST_FAILURE;
+        define('DOCTEST_REPORTING_FLAGS', $rep_flags);
     }
 }
+
+/**
+ * Create special global constants for use in want strings.
+ */
+define('DOCTEST_BLANKLINE_MARKER', '<BLANKLINE>');
+define('DOCTEST_ELLIPSIS_MARKER', '...');
+
+/**
+ * Register option flag constants.
+ */
+DocTest::registerOptions();

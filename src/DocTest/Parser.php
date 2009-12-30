@@ -60,13 +60,6 @@ class DocTest_Parser
     private $_option_directive_re = '/(?:#|\/\/)\s*doctest:\s*([^\n\'"]*)$/m';
     
     /**
-     * An array of option flags, keyed off the option name.
-     *
-     * @var array
-     */
-    private $_option_flags_by_name;
-    
-    /**
      * Initializes a DocTest_Parser instance.
      *
      * @return null
@@ -112,19 +105,6 @@ class DocTest_Parser
                 (?P<line2>\d+)          # The line number (AGAIN!)
             $
             /xms';
-
-        /**
-         * Create option flags array.
-         */
-        $this->_option_flags_by_name = array(
-            'testoption' => 1,
-            'anotheroption' => 2
-        );
-        
-        /**
-         * Populate the available option flags.
-         */
-        
     }
     
     /**
@@ -444,7 +424,7 @@ class DocTest_Parser
                 if (($posneg != '+' && $posneg != '-') 
                     || !array_key_exists(
                         $option_name, 
-                        $this->_option_flags_by_name
+                        DocTest::$option_flags_by_name;
                     )
                 ) {
                     $msg = sprintf(
@@ -460,7 +440,7 @@ class DocTest_Parser
                 /**
                  * Retrieve the flag for the found option.
                  */
-                $flag = $this->_option_flags_by_name[$option_name];
+                $flag = DocTest::$option_flags_by_name[$option_name];
                 
                 /**
                  * Add the option to the options array.
