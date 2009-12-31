@@ -326,11 +326,15 @@ class DocTest_Runner
         
         $this->optionflags = $original_optionflags;
         
-/*
-        # Record and return the number of failures and tries.
-        self.__record_outcome(test, failures, tries)
-        return TestResults(failures, tries)
-*/
+        /**
+         * Record and return the number of failures and tries.
+         *
+         * Not doing this yet...
+         *
+         * self.__record_outcome(test, failures, tries)
+         */
+
+        return new TestResults($failures, $tries);
     }
     
     protected function evalWithGlobs($source, &$globs)

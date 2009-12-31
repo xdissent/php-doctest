@@ -23,9 +23,11 @@ Departures From Python's ``doctest`` Module
 Todo
 ----
 
-* Finish Finder class (which will remove phpDoc formatting from tests).
+* Fill out DocTest_TestResult class.
 
-* Add actual doctest options.
+* Add summarizing capabilities to test runners.
+
+* Finish Finder class (which will remove phpDoc formatting from tests).
 
 * Allow less strict formatting of exceptions.
 
@@ -34,3 +36,5 @@ Todo
 * Review indentation handling since PHP shouldn't care.
 
 * Get fancy with the ``xdiff`` extension.
+  * Update option flags to handle different diff types provided by ``xdiff``.
+  * Override diff options if ``xdiff`` extension is not available.
