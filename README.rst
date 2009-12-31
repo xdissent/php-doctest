@@ -88,5 +88,7 @@ Todo
 * Review indentation handling since PHP shouldn't care.
 
 * Get fancy with the ``xdiff`` extension.
+
   * Update option flags to handle different diff types provided by ``xdiff``.
+  
   * Override diff options if ``xdiff`` extension is not available.
