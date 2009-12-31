@@ -246,9 +246,9 @@ class DocTest
          * to the static named options array.
          */
         foreach ($options as $i => $option) {
-            $name = 'DOCTEST_' . $option;
-            define($name, 1 << $i);
-            self::$option_flags_by_name[$name] = constant($name);
+            $namespaced = 'DOCTEST_' . $option;
+            define($namespaced, 1 << $i);
+            self::$option_flags_by_name[$option] = constant($namespaced);
         }
         
         /**

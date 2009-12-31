@@ -419,6 +419,11 @@ class DocTest_Parser
                 $option_name = substr($option, 1);
                 
                 /**
+                 * Remove "DOCTEST_" prefix if found.
+                 */
+                $option_name = str_replace('DOCTEST_', '', $option_name);
+                
+                /**
                  * Check for invalid option.
                  */
                 if (($posneg != '+' && $posneg != '-') 

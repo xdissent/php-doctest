@@ -165,7 +165,98 @@ class DocTest_Runner
         $check = array($this->_checker, 'checkOutput');
         
         foreach ($test->examples as $examplenum => $example) {
-            echo 'running example';
+            /** 
+             * If DOCTEST_REPORT_ONLY_FIRST_FAILURE is set, then supress
+             * reporting after the first failure.
+             */
+            if (($this->optionflags & DOCTEST_REPORT_ONLY_FIRST_FAILURE)
+                && $failures > 0
+            ) {
+                $quiet = true;
+            } else {
+                $quiet = false;
+            }
+            
+            
+            /**
+             * Merge in the example's options.
+             */
+            $this->optionflags = $original_optionflags;
+            if (count($example->options)) {
+                foreach ($example->options as $optionflag => $val) {
+                    if ($val) {
+                        $this->optionflags = $this->optionflags | $optionflag;
+                    } else {
+                        $this->optionflags = $this->optionflags & ~$optionflag;
+                    }
+                }
+            }
+            
+            /**
+             * If DOCTEST_SKIP is set, then skip this example.
+             */
+            if ($this->optionflags & DOCTEST_SKIP) {
+                continue;
+            }
+            
+            /**
+             * Record that we started this example.
+             */
+            $tries += 1;
+            
+            if (!$quiet) {
+                $this->reportStart($out, $test, $example);
+            }
+            
+            /**
+             * Buffer output for the example run.
+             *
+             * <caution>
+             * Doctest examples should not end an output buffer
+             * unless it begins one.
+             * </caution>
+             */
+            ob_start();
+            
+            try {
+                $parse_error = $this->evalWithGlobs($example->source, $test->globs);
+                $exception = null;
+            } catch (Exception $exception) {
+            }
+            
+            /**
+             * Get any output from the example run.
+             */
+            $got = ob_get_clean();
+            
+            /**
+             * Guilty until proven innocent or insane.
+             */
+            $outcome = $FAILURE;
+            
+            /**
+             * Don't know how to handle parse errors yet...
+             */
+            if ($parse_error) {
+                // Do something smart.
+            }
+            
+            /**
+             * If the example executed without raising any exceptions,
+             * verify its output.
+             */
+            if (is_null($exception)) {                
+                $was_successful = call_user_func(
+                    $check,
+                    $example->want,
+                    $got,
+                    $this->optionflags
+                );
+                
+                if ($was_successful) {
+                    $outcome = $SUCCESS;
+                }
+            }
         }
         
         $this->optionflags = $original_optionflags;
@@ -175,6 +266,30 @@ class DocTest_Runner
         self.__record_outcome(test, failures, tries)
         return TestResults(failures, tries)
 */
+    }
+    
+    protected function evalWithGlobs($source, &$globs)
+    {
+        extract($globs);
+        $ret = eval($source);
+        
+        /**
+         * Save the globals into globs so future examples may use them.
+         */
+        $new_glob_vars = get_defined_vars();
+        
+        unset($new_glob_vars['source']);
+        unset($new_glob_vars['globs']);
+        unset($new_glob_vars['ret']);
+        
+        foreach ($new_glob_vars as $name => $val) {
+            $globs[$name] = $val;
+        }
+    }
+    
+    protected function reportStart($out, $test, $example)
+    {
+        call_user_func($out, 'starting report');
     }
     
     /**
