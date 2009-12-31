@@ -70,7 +70,7 @@ class DocTest_Runner
      *                             mode regardless of the script arguments.
      * @param integer $optionflags An or'ed combination of test flags.
      *
-     * @return array
+     * @return null
      */
     public function __construct($checker=null, $verbose=null, $optionflags=0)
     {
@@ -110,17 +110,12 @@ class DocTest_Runner
     public function run($test, $out=null, $clear_globs=true)
     {
         $this->test = &$test;
-                
-        /**
-         * Insert output buffer.
-         */
-        ob_start();
         
         /**
          * By default, simply output to stdout.
          */
         if (is_null($out)) {
-            $out = array(self, 'stdout');
+            $out = array(__CLASS__, 'stdout');
         }
         
         $ret = $this->_run($test, $out);
@@ -131,12 +126,6 @@ class DocTest_Runner
         if ($clear_globs) {
             $test->globs = array();
         }
-        
-        /**
-         * Remove output buffer.
-         */
-        ob_end_flush();
-        //ob_end_clean();
         
         return $ret;
     }
@@ -335,18 +324,32 @@ class DocTest_Runner
     
     protected function evalWithGlobs($source, &$globs)
     {
+        /**
+         * Extract all global variables into the current scope.
+         */
         extract($globs);
+        
+        /**
+         * Run the source code in the current scope.
+         */
         $ret = eval($source);
         
         /**
-         * Save the globals into globs so future examples may use them.
+         * Get all variables in the current scope including those defined by
+         * the eval'ed code.
          */
         $new_glob_vars = get_defined_vars();
         
+        /**
+         * Unset special variablse that should not be added to globals.
+         */
         unset($new_glob_vars['source']);
         unset($new_glob_vars['globs']);
         unset($new_glob_vars['ret']);
         
+        /**
+         * Save the globals into globs so future examples may use them.
+         */
         foreach ($new_glob_vars as $name => $val) {
             $globs[$name] = $val;
         }
@@ -359,17 +362,17 @@ class DocTest_Runner
     
     protected function reportSuccess($out, $test, $example, $got)
     {
-        echo 'SUCCESS!';
+        call_user_func($out, 'success');
     }
 
     protected function reportFailure($out, $test, $example, $got)
     {
-        echo 'Failure!';
+        call_user_func($out, 'failure');
     }
     
     protected function reportUnexpectedException($out, $test, $example, $exception)
     {
-        echo 'BOOOOOM!';
+        call_user_func($out, 'boom!');
     }
     
     /**

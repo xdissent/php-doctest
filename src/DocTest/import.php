@@ -110,9 +110,7 @@ class DocTest
         /**
          * Relativize the path
          */
-        $info = self::_loadTestFile($filename, $package, $module_relative);
-        $text = $info[0];
-        $filename = $info[1];
+        list($text, $filename) = self::_loadTestFile($filename, $package, $module_relative);
         
         /**
          * If no name was given, then use the file's name.

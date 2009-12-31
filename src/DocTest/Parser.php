@@ -278,18 +278,22 @@ class DocTest_Parser
             }
             
             /**
-             * Extract info from the regexp match
+             * Extract info from the regexp match.
              */
-            $info = $this->_parseExample($m, $name, $lineno);
+            list($source, $want, $exc_msg, $options) = $this->_parseExample(
+                $m, 
+                $name, 
+                $lineno
+            );
             
-            if (!$this->_isBlankOrComment($info['source'])) {
+            if (!$this->_isBlankOrComment($source)) {
                 $output[] = new DocTest_Example(
-                    $info['source'],
-                    $info['want'],
-                    $info['exc_msg'],
+                    $source,
+                    $want,
+                    $exc_msg,
                     $lineno,
                     $min_indent + strlen($m['indent'][0]),
-                    $info['options']
+                    $options
                 );
             }
             
@@ -376,12 +380,7 @@ class DocTest_Parser
          */
         $options = $this->_findOptions($source, $name, $lineno);
         
-        return array(
-            'source' => $source,
-            'want' => $want,
-            'exc_msg' => $exc_msg,
-            'options' => $options
-        );
+        return array($source, $want, $exc_msg, $options);
     }
     
     /**
