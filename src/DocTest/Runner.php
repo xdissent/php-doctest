@@ -1,6 +1,7 @@
 <?php
 
 require dirname(__FILE__) . '/OutputChecker.php';
+require dirname(__FILE__) . '/TestResults.php';
 
 /**
  * A class used to run DocTest test cases, and accumulate statistics.
@@ -55,9 +56,16 @@ class DocTest_Runner
     
     /**
      * The test being run.
+     *
+     * @var object
      */
     public $test;
     
+    /**
+     * An associate array mapping tests to number of failures and tries.
+     *
+     * @var array
+     */
     private $_name2ft;
     
     /**
@@ -328,15 +336,111 @@ class DocTest_Runner
         
         /**
          * Record and return the number of failures and tries.
-         *
-         * Not doing this yet...
-         *
-         * self.__record_outcome(test, failures, tries)
          */
+        $this->_recordOutcome($test, $failures, $tries);
 
-        return new TestResults($failures, $tries);
+        return new DocTest_TestResults($failures, $tries);
     }
     
+    private function _recordOutcome($test, $f, $t)
+    {
+        if (array_key_exists($test->name, $this->_name2ft)) {
+            $f2 = $this->_name2ft[$test->name][0];
+            $t2 = $this->_name2ft[$test->name][1];
+        } else {
+            $f2 = 0;
+            $t2 = 0;
+        }
+        $this->_name2ft[$test->name] = array($f + $f2, $t + $t2);
+        $this->failures += $f;
+        $this->tries += $t;
+    }
+    
+    public function summarize($verbose=null)
+    {
+        if (is_null($verbose)) {
+            $verbose = $this->_verbose;
+        }
+        
+        $notests = array();
+        $passed = array();
+        $failed = array();
+        $totalt = 0;
+        $totalf = 0;
+        
+        foreach ($this->_name2ft as $name => $ft) {
+            $f = $ft[0];
+            $t = $ft[1];
+            $totalt += $t;
+            $totalf += $f;
+            if ($t == 0) {
+                $notests[] = $name;
+            } elseif ($f == 0) {
+                $passed[] = array($name, $t);
+            } else {
+                $failed[] = array($name, $this->_name2ft[$name]);
+            }
+        }
+        
+        if ($verbose) {
+            if (count($notests)) {
+                echo count($notests) . " items had no tests:\n";
+                sort($notests);
+                foreach ($notests as $thing) {
+                    echo '   ' . $thing . "\n";
+                }
+            }
+            if (count($passed)) {
+                echo count($passed) . " items passed all tests:\n";
+                sort($passed);
+                foreach ($passed as $thing) {
+                    $name = $thing[0];
+                    $count = $thing[1];
+                    echo sprintf(" %3d tests in %s\n", $count, $name);
+                }
+            }
+        }
+        
+        if ($failed) {
+            echo $this->_divider . "\n";
+            echo count($failed) . " items had failures:\n";
+            sort($failed);
+            foreach ($failed as $thing) {
+                $name = $thing[0];
+                $f = $thing[1][0];
+                $t = $thing[1][1];
+                echo sprintf(" %3d of %3d in %s\n", $f, $t, $name);
+            }
+        }
+        
+        if ($verbose) {
+            echo $totalt . ' tests in ' . count($this->_name2ft) . " items.\n";
+            echo $totalt - $totalf . ' passed and ' . $totalf . " failed.\n";
+        }
+        
+        if ($totalf) {
+            echo '***Test Failed*** ' . $totalf . " failures.\n";
+        } elseif ($verbose) {
+            echo "Test passed.\n";
+        }
+        
+        return new DocTest_TestResults($totalf, $totalt);
+    }
+    
+    /**
+     * Executes the given source code in a clean scope with globals set.
+     *
+     * <caution>
+     * The array of globals is passed by reference and will be updated
+     * to include any new global variables that are set when executing the 
+     * source.
+     * </caution>
+     *
+     * @param string $source The source code to run.
+     * @param array  $globs  The globals to set before execution.
+     *
+     * @return null
+     */
     protected function evalWithGlobs($source, &$globs)
     {
         /**
@@ -433,6 +537,16 @@ class DocTest_Runner
         call_user_func($out, $output);
     }
     
+    /**
+     * Report that an exception was thrown that we were not expecting.
+     *
+     * @param mixed  $out       The callback used to display output.
+     * @param object $test      The doctest that is running.
+     * @param object $example   The current example in the test.
+     * @param object $exception The exception thrown by the test.
+     *
+     * @return null
+     */
     protected function reportUnexpectedException($out, $test, $example, $exception)
     {
         $output = $this->_failureHeader($test, $example);
@@ -441,6 +555,14 @@ class DocTest_Runner
         call_user_func($out, $output);
     }
     
+    /**
+     * Returns a highly visible string used to indicate that an error occurred.
+     *
+     * @param object $test      The doctest that is running.
+     * @param object $example   The current example in the test.
+     *
+     * @return string
+     */
     private function _failureHeader($test, $example)
     {
         $out = array($this->_divider);
@@ -472,6 +594,17 @@ class DocTest_Runner
         return implode("\n", $out);
     }
     
+    /**
+     * Returns a string representation of an exception.
+     *
+     * <note>
+     * This method is the global "_exception_traceback()" function in Python
+     * </note>
+     *
+     * @param object $exception The exception.
+     *
+     * @return string
+     */
     private function _exceptionTraceback($exception)
     {
         return (string)$exception . "\n";

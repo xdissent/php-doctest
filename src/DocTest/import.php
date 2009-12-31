@@ -74,13 +74,13 @@ class DocTest
      *                                 filename will be used by default.
      * @param string  $package         A package whose path should be used for
      *                                 the relative module base path.
-     * @param array   $globs           
-     * @param boolean $verbose
-     * @param boolean $report
+     * @param array   $globs           The global variables needed by the tests.
+     * @param boolean $verbose         Whether or not to trigger verbose mode.
+     * @param boolean $report          Whether or not to output a full report.
      * @param integer $optionflags     The or'ed combination of flags to use.
-     * @param array   $extraglobs
-     * @param boolean $raise_on_errors
-     * @param object  $parser
+     * @param array   $extraglobs      Extra globals to use for the tests.
+     * @param boolean $raise_on_errors Whether to raise an exception on error.
+     * @param object  $parser          A parser to use for the tests.
      * @param string  $encoding        The encoding to use to convert the file
      *                                 to unicode.
      *
@@ -149,12 +149,10 @@ class DocTest
         $runner->run($test);
         
         if ($report) {
-            //$runner->summarize();
+            $runner->summarize();
         }
         
-        // return new DocTest_TestResults($runner->failures, $runner->tries);
-        
-        //var_dump($runner);
+        return new DocTest_TestResults($runner->failures, $runner->tries);
     }
     
     private static function _loadTestFile($filename, $package, $module_relative)
