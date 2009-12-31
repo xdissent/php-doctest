@@ -4,7 +4,6 @@ DocTest for PHP
 
 .. caution:: This package is a work in progress, and does *not* guarantee any
    useful functionality yet. Your mileage may **seriously** vary.
-   
 
 Departures From Python's ``doctest`` Module
 -------------------------------------------
@@ -23,11 +22,11 @@ Departures From Python's ``doctest`` Module
 Todo
 ----
 
-* Fill out DocTest_TestResult class.
-
-* Add summarizing capabilities to test runners.
+* Fill out DocTest_TestResults class.
 
 * Finish Finder class (which will remove phpDoc formatting from tests).
+
+* Add the familiar ``testMod()`` static method (requires completed Finder class).
 
 * Allow less strict formatting of exceptions.
 

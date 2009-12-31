@@ -1,0 +1,18 @@
+php > $a = array(1, 2, 3, 4, 5);
+php > $o = array();
+php > foreach ($a as $v) {
+php {     $o[] = $v * $v;
+php { }
+php > var_dump($o);
+array(5) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(4)
+  [2]=>
+  int(9)
+  [3]=>
+  int(16)
+  [4]=>
+  int(25)
+}

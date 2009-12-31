@@ -1,0 +1,30 @@
+This is a test:
+php > $a = array(1, 2, 3, 4, 5);
+
+php > throw new Exception('test');
+PHP Fatal error:  Uncaught exception 'Exception' with message 'test' in php shell code:1
+Stack trace:
+#0 {main}
+  thrown in php shell code on line 1
+
+So is this
+php > $o = array();
+
+php > throw new Exception('thisis a test');
+
+php > foreach ($a as $v) {
+php {     $o[] = $v * $v;
+php { }
+php > var_dump($o);
+array(5) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(4)
+  [2]=>
+  int(9)
+  [3]=>
+  int(14)
+  [4]=>
+  int(25)
+}
