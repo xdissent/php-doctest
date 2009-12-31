@@ -355,24 +355,66 @@ class DocTest_Runner
         }
     }
     
+    /**
+     * Reports that the test runner is about to process the given example.
+     *
+     * This method only displays a message if in verbose mode.
+     *
+     * @param mixed  $out     The callback used to display output.
+     * @param object $test    The doctest that is running.
+     * @param object $example The current example in the test.
+     *
+     * @return null
+     */
     protected function reportStart($out, $test, $example)
     {
-        call_user_func($out, 'starting report');
+        if ($this->_verbose) {
+            if ($example->want !== '') {
+                $output = "Trying:\n" . DocTest::indent($example->source) .
+                    "Expecting:\n" . DocTest::indent($example->want);
+            } else {
+                $output = "Trying:\n" . DocTest::indent($example->source) .
+                    "Expecting nothing\n";
+            }
+            call_user_func($out, $output);
+        }
     }
     
+    /**
+     * Report that the given example ran successfully.
+     *
+     * @param mixed  $out     The callback used to display output.
+     * @param object $test    The doctest that is running.
+     * @param object $example The current example in the test.
+     * @param string $got     The output received from the test.
+     *
+     * @return null
+     */
     protected function reportSuccess($out, $test, $example, $got)
     {
-        call_user_func($out, 'success');
+        if ($this->_verbose) {
+            call_user_func($out, "ok\n");
+        }
     }
 
+    /**
+     * Report that the given example ran unsuccessfully.
+     *
+     * @param mixed  $out     The callback used to display output.
+     * @param object $test    The doctest that is running.
+     * @param object $example The current example in the test.
+     * @param string $got     The output received from the test.
+     *
+     * @return null
+     */
     protected function reportFailure($out, $test, $example, $got)
     {
-        call_user_func($out, 'failure');
+        call_user_func($out, 'FAIL');
     }
     
     protected function reportUnexpectedException($out, $test, $example, $exception)
     {
-        call_user_func($out, 'boom!');
+        call_user_func($out, 'BOOM!');
     }
     
     /**

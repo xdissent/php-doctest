@@ -269,6 +269,20 @@ class DocTest
             DOCTEST_REPORT_ONLY_FIRST_FAILURE;
         define('DOCTEST_REPORTING_FLAGS', $rep_flags);
     }
+    
+    /**
+     * Returns a string with non-empty lines prefixed with a number of spaces.
+     *
+     * <note>This method is the global "_indent()" function in Python.</note>
+     *
+     * @param string  $s      The string to indent.
+     * @param integer $indent The number of spaces to indent.
+     *
+     * @return string
+     */
+    public function indent($s, $indent=4) {
+        return preg_replace('/(?m)^(?!$)/', str_repeat(' ', $indent), $s);
+    }
 }
 
 /**

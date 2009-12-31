@@ -15,6 +15,9 @@ Departures From Python's ``doctest`` Module
   
 * Code level option flag constants are prefixed with ``DOCTEST_``. Specifying
   options from within doctests may (should) still use the non-prefixed names.
+  
+* Diff style output is not yet available, and the options associated with this
+  feature will also differ from those found in Python.
 
 
 Todo
@@ -29,3 +32,5 @@ Todo
 * Fully support (and test) multibyte encodings.
 
 * Review indentation handling since PHP shouldn't care.
+
+* Get fancy with the ``xdiff`` extension.

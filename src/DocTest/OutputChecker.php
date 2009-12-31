@@ -3,7 +3,15 @@
 class DocTest_OutputChecker
 {
     /**
+     * Determines whether expected output and actual output match.
+     *
      * <note>This method is called "check_output()" in Python.</note>
+     *
+     * @param string  $want        The expected output.
+     * @param string  $got         The actual output.
+     * @param integer $optionflags The options to use when comparing output.
+     *
+     * @return boolean
      */
     public function checkOutput($want, $got, $optionflags)
     {
@@ -80,6 +88,90 @@ class DocTest_OutputChecker
         return false;
     }
     
+    /**
+     * Return the differences between expected output and actual output.
+     *
+     * @param object  $example     The example whose output should be diffed.
+     * @param string  $got         The actual output for the example.
+     * @param integer $optionflags The options to use when comparing output.
+     *
+     * @return string
+     */
+    public function outputDifference($example, $got, $optionflags)
+    {
+        $want = $example->want;
+        
+        /**
+         * If <BLANKLINE>s are being used, then replace blank lines
+         * with <BLANKLINE> in the actual output string.
+         */
+        if (!($optionflags & DOCTEST_DONT_ACCEPT_BLANKLINE)) {
+            $got = preg_replace(
+                '/(?m)^[ ]*(?=\n)/', 
+                DOCTEST_BLANKLINE_MARKER, 
+                $got
+            );
+        }
+        
+        if ($this->_doAFancyDiff($want, $got, $optionflags)) {
+            throw new Exception('No diff available yet.');
+        }
+        
+        /**
+         * If we're not using diff, then simply list the expected
+         * output followed by the actual output.
+         */
+        if ($want !== '' && $got !== '') {
+            return sprintf(
+                'Expected:\n%sGot:\n%s',
+                DocTest::indent($want),
+                DocTest::indent($got)
+            );
+        } elseif ($want !== '') {
+            return sprintf(
+                'Expected:\n%sGot nothing\n',
+                DocTest::indent($want)
+            );
+        } elseif ($got !== '') {
+            return sprintf(
+                'Expected nothing\nGot:\n%s',
+                DocTest::indent($got)
+            );
+        } else {
+            return 'Expected nothing\nGot nothing\n';
+        }
+    }
+    
+    /**
+     * Determines whether a fancy diff is in order.
+     *
+     * <note>This method is called "_do_a_fancy_diff()" in Python</note>
+     *
+     * @param string  $want        The expected output.
+     * @param string  $got         The actual output.
+     * @param integer $optionflags The options to use when comparing output.
+     *
+     * @return boolean
+     *
+     * @todo Make this method check for diff optionflags.
+     */
+    private function _doAFancyDiff($want, $got, $optionflags)
+    {
+        return extension_loaded('xdiff');
+    }
+    
+    /**
+     * Checks for an ellipsis-style vague match in output.
+     *
+     * <note>
+     * This method is the global function "_ellipsis_match()" in Python.
+     * </note>
+     *
+     * @param string  $want The expected output.
+     * @param string  $got  The actual output.
+     *
+     * @return boolean
+     */
     private function _ellipsisMatch($want, $got)
     {
         /**
