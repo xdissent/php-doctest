@@ -218,10 +218,11 @@ class DocTest_Runner
              */
             ob_start();
             
+            $exception = null;
             try {
                 $parse_error = $this->evalWithGlobs($example->source, $test->globs);
-                $exception = null;
-            } catch (Exception $exception) {
+            } catch (Exception $e) {
+                $exception = $e;
             }
             
             /**
@@ -256,6 +257,70 @@ class DocTest_Runner
                 if ($was_successful) {
                     $outcome = $SUCCESS;
                 }
+            } else {
+                $exc_msg = $exception->getMessage();
+                
+                /**
+                 * Not doing this yet...
+                 * if not quiet:
+                 *     got += _exception_traceback(exc_info)
+                 */
+                 
+                if (is_null($example->exc_msg)) {
+                    $outcome = $BOOM;
+                } else {
+                    /**
+                     * We expected an exception: see whether it matches.
+                     */
+                    $was_successful = call_user_func(
+                        $check,
+                        $example->exc_msg,
+                        $exc_msg,
+                        $this->optionflags
+                    );
+                    if ($was_successful) {
+                        $outcome = $SUCCESS;
+                    } else {
+                    
+                        /**
+                         * Another chance if they didn't care about the detail.
+                         * Not doing this yet...
+                         *
+                         * if self.optionflags & IGNORE_EXCEPTION_DETAIL:
+                         *     m1 = re.match(r'[^:]*:', example.exc_msg)
+                         *     m2 = re.match(r'[^:]*:', exc_msg)
+                         *     if m1 and m2 and check(m1.group(0), m2.group(0),
+                         *                    self.optionflags):
+                         *         outcome = SUCCESS
+                         */
+                    }
+                }
+            }
+            
+            /**
+             * Report the outcome.
+             */
+            if ($outcome === $SUCCESS) {
+                if (!$quiet) {
+                    $this->reportSuccess($out, $test, $example, $got);
+                }
+            } elseif ($outcome === $FAILURE) {
+                if (!$quiet) {
+                    $this->reportFailure($out, $test, $example, $got);
+                }
+                $failures += 1;
+            } elseif ($outcome === $BOOM) {
+                if (!$quiet) {
+                    $this->reportUnexpectedException(
+                        $out, 
+                        $test, 
+                        $example,
+                        $exception
+                    );
+                }
+                $failures += 1;
+            } else {
+                throw new Exception('Unknown test outcome.');
             }
         }
         
@@ -290,6 +355,21 @@ class DocTest_Runner
     protected function reportStart($out, $test, $example)
     {
         call_user_func($out, 'starting report');
+    }
+    
+    protected function reportSuccess($out, $test, $example, $got)
+    {
+        echo 'SUCCESS!';
+    }
+
+    protected function reportFailure($out, $test, $example, $got)
+    {
+        echo 'Failure!';
+    }
+    
+    protected function reportUnexpectedException($out, $test, $example, $exception)
+    {
+        echo 'BOOOOOM!';
     }
     
     /**
