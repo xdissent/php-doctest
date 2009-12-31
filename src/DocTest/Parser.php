@@ -424,7 +424,7 @@ class DocTest_Parser
                 if (($posneg != '+' && $posneg != '-') 
                     || !array_key_exists(
                         $option_name, 
-                        DocTest::$option_flags_by_name;
+                        DocTest::$option_flags_by_name
                     )
                 ) {
                     $msg = sprintf(
