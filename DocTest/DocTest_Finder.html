@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class DocTest_Finder</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+						<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name">Class DocTest_Finder</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+															<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">A class that extracts DocTests from an object.</p>
+		<p class="notes">
+			Located in <a class="field" href="_DocTest---Finder.php.html">/DocTest/Finder.php</a> (line <span class="field">6</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+
+
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+												<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																														
+				<div class="method-definition">
+											<span class="method-result">null</span>
+										<a href="#__construct" title="details" class="method-name">__construct</a>
+											([<span class="var-type">boolean</span>&nbsp;<span class="var-name">$verbose</span> = <span class="var-default">false</span>], [<span class="var-type">object</span>&nbsp;<span class="var-name">$parser</span> = <span class="var-default">null</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$recurse</span> = <span class="var-default">true</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$exclude_empty</span> = <span class="var-default">true</span>])
+									</div>
+														
+				<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#find" title="details" class="method-name">find</a>
+											(<span class="var-type">object</span>&nbsp;<span class="var-name">$obj</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$module</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$globs</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$extraglobs</span> = <span class="var-default">null</span>])
+									</div>
+											</div>
+		</div>
+	</div>		
+
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+																<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+<a name="method__construct" id="__construct"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">Constructor __construct</span> (line <span class="line-number">48</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Creates a new doctest finder.</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">null</span>
+		<span class="method-name">
+			__construct
+		</span>
+					([<span class="var-type">boolean</span>&nbsp;<span class="var-name">$verbose</span> = <span class="var-default">false</span>], [<span class="var-type">object</span>&nbsp;<span class="var-name">$parser</span> = <span class="var-default">null</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$recurse</span> = <span class="var-default">true</span>], [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$exclude_empty</span> = <span class="var-default">true</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$verbose</span><span class="var-description">: Whether to be verbose when finding tests.</span>			</li>
+					<li>
+				<span class="var-type">object</span>
+				<span class="var-name">$parser</span><span class="var-description">: A parser object.</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$recurse</span><span class="var-description">: Whether the finder will search contained                                objects or not.</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$exclude_empty</span><span class="var-description">: Whether the finder will include tests for                                objects with empty doc strings.</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodfind" id="find"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">find</span> (line <span class="line-number">76</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Returns an array of DocTests defined by an object's docstring.</p>
+<p class="description"><p>Contained objects may be searched, depending on the recurse option passed  to the instance's constructor.</p></p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			find
+		</span>
+					(<span class="var-type">object</span>&nbsp;<span class="var-name">$obj</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$module</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$globs</span> = <span class="var-default">null</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$extraglobs</span> = <span class="var-default">null</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">object</span>
+				<span class="var-name">$obj</span><span class="var-description">: The object to search for DocTests.</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$name</span><span class="var-description">: The name of the object.</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$module</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$globs</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$extraglobs</span>			</li>
+				</ul>
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 31 Dec 2009 11:00:34 -0600 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>

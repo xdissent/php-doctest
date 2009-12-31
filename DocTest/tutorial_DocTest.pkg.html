@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>DocTest for PHP</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+						<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+
+<div><a name=""></a><div class="ref-title-box"><h1 class="ref-title">DocTest for PHP</h1>
+<h2 class="ref-purpose">The missing link in PHP testing.</h2></div>
+<div class="ref-synopsis"><span class="author">Greg Thornton<div class="author-blurb"><a href="mailto:xdissent@gmail.com">xdissent@gmail.com</a></div></span></div><span class="warning"><p>This package is a work in progress, and does <em>not</em> guarantee any
+useful functionality yet. Your mileage may <em class = "strong">seriously</em> vary.</p></span>
+<h1 class="title">Table of Contents</h1>
+<ul class="toc">
+	
+			
+					<li><a href="../DocTest/tutorial_DocTest.pkg.html#project-status">Project Status</a></li>
+					
+					<li><a href="../DocTest/tutorial_DocTest.pkg.html#surely-doctest-for-php-already-exists-right">Surely DocTest for PHP Already Exists, Right?</a></li>
+					
+					<li><a href="../DocTest/tutorial_DocTest.pkg.html#departures-from-python-s-doctest-module">Departures From Python's doctest Module</a></li>
+					
+					<li><a href="../DocTest/tutorial_DocTest.pkg.html#todo">Todo</a></li>
+					</ul>
+
+<span><a name="project-status"></a><h2 class="title">Project Status</h2><p>Currently, parsing, running and reporting of tests is fully functional, but
+(perhaps ironically) tests contained within documentation comments are not
+automatically found yet. Text files with tests are parsed correctly and
+can be used at this very moment, but a little more work is required before
+comments in your code will be correctly parsed for tests. (It's coming very
+soon!)</p></span>
+<span><a name="surely-doctest-for-php-already-exists-right"></a><h2 class="title">Surely DocTest for PHP Already Exists, Right?</h2><p>That's what I thought too! And yes, in a way, it <em>does</em> exist. There's already
+a <a href="http://code.google.com/p/doctest-php">PHP port</a> of <code>doctest</code> called <code>doctest-php</code>. Unfortunately, it's
+only documented in Korean (very sparsely) and doesn't work for me out of the
+box. Additionally, I believe it was developed at a time when PHP's interactive
+command line mode wasn't available, since the tests are expected to be
+written in a slightly different format, with output being printed for <em>any</em>
+return value (like Python) regardless of whether output was requested (via
+<code>echo</code>, etc). Lack of documentation aside, the differences between test
+syntax and real-world command line sessions is a huge deal-breaker for any
+reasonable test-nazi like myself.</p><p><a name="php-port"></a>It should also be noted that PEAR <a href="http://pear.php.net/package/Testing_DocTest">contains a package</a> called
+<code>Testing_DocTest</code> which seems to be completely unaware of the existence
+of the new interactive PHP command line mode, and requires a foreign syntax
+that looks absolutely nothing like Python's doctest. Not even close!</p></span>
+<span><a name="departures-from-python-s-doctest-module"></a><h2 class="title">Departures From Python's <code>doctest</code> Module</h2><ul><li><p>Test runners do not accept the <code>$compileflags</code> argument since PHP doesn't
+use special arguments for certain features that might be required by the
+test.</p></li>
+<li><p>Code level option flag constants are prefixed with <code>DOCTEST_</code>. Specifying
+options from within doctests may (should) still use the non-prefixed names.</p></li>
+<li><p>Diff style output is not yet available, and the options associated with this
+feature will also differ from those found in Python.</p></li>
+<li><p>Although it's more accurately a difference between Python's interpreter and
+PHP's, it's important to note that simply returning a value in PHP's
+interactive mode will <em>not</em> result in any &quot;expected output.&quot; This means tests
+in PHP have to be slightly more verbose (using <code>var_dump()</code> etc). The only
+thing you have to remember really, is that if it's not output when you're
+in a <em>real</em> PHP interactive mode session, it shouldn't be expected as output
+when writing tests.</p></li></ul></span>
+<span><a name="todo"></a><h2 class="title">Todo</h2><ul><li><p>Fill out DocTest_TestResults class.</p></li>
+<li><p>Finish Finder class (which will remove phpDoc formatting from tests).</p></li>
+<li><p>Add the familiar <code>testMod()</code> static method (requires completed Finder class).</p></li>
+<li><p>Allow less strict formatting of exceptions.</p></li>
+<li><p>Fully support (and test) multibyte encodings.</p></li>
+<li><p>Review indentation handling since PHP shouldn't care.</p></li>
+<li><p>Get fancy with the <code>xdiff</code> extension.</p><ul><li><p>Update option flags to handle different diff types provided by <code>xdiff</code>.</p></li>
+<li><p>Override diff options if <code>xdiff</code> extension is not available.</p></li></ul></li></ul></span></div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Thu, 31 Dec 2009 11:00:34 -0600 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>
