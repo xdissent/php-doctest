@@ -61,6 +61,15 @@ class DocTest_Runner
     private $_name2ft;
     
     /**
+     * A text divider.
+     *
+     * <note>This member variable is called "DIVIDER" in Python.</note>
+     *
+     * @var string
+     */
+    private $_divider;
+    
+    /**
      * Creates a new test runner.
      *
      * @param object  $checker     The object instance for checking test output.
@@ -97,6 +106,8 @@ class DocTest_Runner
         $this->original_optionflags = $optionflags;
 
         $this->_name2ft = array();
+        
+        $this->_divider = str_repeat('*', 70);
     }
     
     /**
@@ -247,7 +258,7 @@ class DocTest_Runner
                     $outcome = $SUCCESS;
                 }
             } else {
-                $exc_msg = $exception->getMessage();
+                $exc_msg = $exception->getMessage() . "\n";
                 
                 /**
                  * Not doing this yet...
@@ -409,12 +420,57 @@ class DocTest_Runner
      */
     protected function reportFailure($out, $test, $example, $got)
     {
-        call_user_func($out, 'FAIL');
+        $output = $this->_failureHeader($test, $example);
+        $output .= $this->_checker->outputDifference(
+            $example,
+            $got,
+            $this->optionflags
+        );
+        call_user_func($out, $output);
     }
     
     protected function reportUnexpectedException($out, $test, $example, $exception)
     {
-        call_user_func($out, 'BOOM!');
+        $output = $this->_failureHeader($test, $example);
+        $output .= "Exception raised:\n";
+        $output .= DocTest::indent($this->_exceptionTraceback($exception));
+        call_user_func($out, $output);
+    }
+    
+    private function _failureHeader($test, $example)
+    {
+        $out = array($this->_divider);
+        
+        if ($test->filename !== '') {
+            if (!is_null($test->lineno) && !is_null($example->lineno)) {
+                $lineno = $test->lineno + $example->lineno + 1;
+            } else {
+                $lineno = '?';
+            }
+            $out[] = sprintf(
+                'File "%s", line %s, in %s',
+                $test->filename,
+                $lineno,
+                $test->name
+            );
+        } else {
+            $out[] = sprintf(
+                'Line %s, in %s',
+                $example->lineno + 1,
+                $test->name
+            );
+        }
+        
+        $out[] = 'Failed example:';
+        $source = $example->source;
+        $out[] = DocTest::indent($source);
+        
+        return implode("\n", $out);
+    }
+    
+    private function _exceptionTraceback($exception)
+    {
+        return (string)$exception . "\n";
     }
     
     /**

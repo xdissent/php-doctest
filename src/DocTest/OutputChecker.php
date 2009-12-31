@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * A class used to check the whether the actual output from a doctest
+ * example matches the expected output.
+ */
 class DocTest_OutputChecker
 {
     /**
@@ -28,10 +32,10 @@ class DocTest_OutputChecker
          * value for boolean comparisons.
          */
         if (!($optionflags & DOCTEST_DONT_ACCEPT_TRUE_FOR_1)) {
-            if ($got === 'True\n' && $want === '1\n') {
+            if ($got === "True\n" && $want === "1\n") {
                 return true;
             }
-            if ($got === 'False\n' && $want === '0\n') {
+            if ($got === "False\n" && $want === "0\n") {
                 return true;
             }
         }
@@ -113,6 +117,9 @@ class DocTest_OutputChecker
             );
         }
         
+        /**
+         * Check to see if we should put on our fancy pants.
+         */
         if ($this->_doAFancyDiff($want, $got, $optionflags)) {
             throw new Exception('No diff available yet.');
         }
@@ -123,22 +130,22 @@ class DocTest_OutputChecker
          */
         if ($want !== '' && $got !== '') {
             return sprintf(
-                'Expected:\n%sGot:\n%s',
+                "Expected:\n%sGot:\n%s",
                 DocTest::indent($want),
                 DocTest::indent($got)
             );
         } elseif ($want !== '') {
             return sprintf(
-                'Expected:\n%sGot nothing\n',
+                "Expected:\n%sGot nothing\n",
                 DocTest::indent($want)
             );
         } elseif ($got !== '') {
             return sprintf(
-                'Expected nothing\nGot:\n%s',
+                "Expected nothing\nGot:\n%s",
                 DocTest::indent($got)
             );
         } else {
-            return 'Expected nothing\nGot nothing\n';
+            return "Expected nothing\nGot nothing\n";
         }
     }
     
