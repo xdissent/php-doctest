@@ -39,8 +39,7 @@
  *
  * <code>
  * php > var_dump(factorial(30.1));
- * PHP Fatal error:  Uncaught exception 'InvalidArgumentException' with 
- *     message '$n must be exact integer'
+ * PHP Fatal error:  Uncaught exception 'InvalidArgumentException' with message '$n must be exact integer'
  * php > var_dump(factorial(30.0));
  * float(2.6525285981219E+32)
  * </code>
@@ -79,5 +78,5 @@ function factorial($n) {
 
 if (!count(debug_backtrace())) {
     require dirname(__FILE__) . '/../src/DocTest/import.php';
-    DocTest::testmod();
+    DocTest::testObj('factorial', null, true);
 }

@@ -45,6 +45,20 @@ class DocTest
             $examples
         );
     }
+    
+    public static function testObj($obj, $globs=null, $verbose=false, 
+        $name=null, $optionflags=0
+    ){
+        /**
+         * Find, parse, and run all tests in the given object.
+         */
+        $finder = new DocTest_Finder($verbose, null, false);
+        $runner = new DocTest_Runner(null, $verbose, $optionflags);
+        $tests = $finder->find($obj, $name, $globs);
+        foreach ($tests as $test) {
+            $runner->run($test);
+        }
+    }
      
     /* Tests examples in the given file.
      *

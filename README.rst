@@ -75,6 +75,8 @@ Departures From Python's ``doctest`` Module
 Todo
 ----
 
+* Move all constants to class constants of ``DocTest`` if possible (ditching prefix).
+
 * Finish Finder class (which will remove phpDoc formatting from tests).
 
 * Add the familiar ``testMod()`` static method (requires completed Finder class).
