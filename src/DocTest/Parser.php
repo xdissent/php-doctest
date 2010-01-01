@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Import the DocTest_Example source file.
- */
-require dirname(__FILE__) . '/Example.php';
-
-/**
  * A class used to parse strings containing doctest examples.
  */
 class DocTest_Parser

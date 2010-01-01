@@ -1,8 +1,5 @@
 <?php
 
-require dirname(__FILE__) . '/OutputChecker.php';
-require dirname(__FILE__) . '/TestResults.php';
-
 /**
  * A class used to run DocTest test cases, and accumulate statistics.
  */
@@ -137,7 +134,7 @@ class DocTest_Runner
             $out = array(__CLASS__, 'stdout');
         }
         
-        $ret = $this->_run($test, $out);
+        $r = $this->_run($test, $out);
         
         /**
          * Clear test globals if necessary.
@@ -146,7 +143,7 @@ class DocTest_Runner
             $test->globs = array();
         }
         
-        return $ret;
+        return $r;
     }
     
     /**
@@ -268,11 +265,9 @@ class DocTest_Runner
             } else {
                 $exc_msg = $exception->getMessage() . "\n";
                 
-                /**
-                 * Not doing this yet...
-                 * if not quiet:
-                 *     got += _exception_traceback(exc_info)
-                 */
+                if (!$quiet) {
+                    $got += (string)$exception;
+                }
                  
                 if (is_null($example->exc_msg)) {
                     $outcome = $BOOM;
@@ -292,7 +287,10 @@ class DocTest_Runner
                     
                         /**
                          * Another chance if they didn't care about the detail.
-                         * Not doing this yet...
+                         *
+                         * <caution>
+                         * Not doing this until we separate type and msg.
+                         * </caution>
                          *
                          * if self.optionflags & IGNORE_EXCEPTION_DETAIL:
                          *     m1 = re.match(r'[^:]*:', example.exc_msg)
@@ -460,7 +458,7 @@ class DocTest_Runner
         $new_glob_vars = get_defined_vars();
         
         /**
-         * Unset special variablse that should not be added to globals.
+         * Unset special variables that should not be added to globals.
          */
         unset($new_glob_vars['source']);
         unset($new_glob_vars['globs']);

@@ -75,13 +75,17 @@ Departures From Python's ``doctest`` Module
 Todo
 ----
 
-* Fill out DocTest_TestResults class.
-
 * Finish Finder class (which will remove phpDoc formatting from tests).
 
 * Add the familiar ``testMod()`` static method (requires completed Finder class).
 
 * Allow less strict formatting of exceptions.
+
+* Check exception type and message independently, since Python handles both as one
+  "exception message".
+
+* Change ``IGNORE_EXCEPTION_DETAIL`` flag to ``IGNORE_EXCEPTION_MESSAGE`` and/or 
+  ``IGNORE_EXCEPTION_TYPE``.
 
 * Fully support (and test) multibyte encodings.
 
