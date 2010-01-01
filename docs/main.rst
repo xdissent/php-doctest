@@ -20,10 +20,11 @@ Project Status
 
 Currently, parsing, running and reporting of tests is fully functional, but
 (perhaps ironically) tests contained within documentation comments are not
-automatically found yet. Text files with tests are parsed correctly and
+fully supported yet. Text files with tests are parsed correctly and
 can be used at this very moment, but a little more work is required before
-comments in your code will be correctly parsed for tests. (It's coming very
-soon!)
+comments in your code will be correctly parsed for tests. Preliminary support
+is finished (see the DocTest::testObj() static method) but it is not recursive
+and cannot search whole files at all yet.
 
    
 Surely DocTest for PHP Already Exists, Right?
@@ -75,13 +76,19 @@ Departures From Python's ``doctest`` Module
 Todo
 ----
 
-* Fill out DocTest_TestResults class.
+* Move all constants to class constants of ``DocTest`` if possible (ditching prefix).
 
 * Finish Finder class (which will remove phpDoc formatting from tests).
 
 * Add the familiar ``testMod()`` static method (requires completed Finder class).
 
 * Allow less strict formatting of exceptions.
+
+* Check exception type and message independently, since Python handles both as one
+  "exception message".
+
+* Change ``IGNORE_EXCEPTION_DETAIL`` flag to ``IGNORE_EXCEPTION_MESSAGE`` and/or 
+  ``IGNORE_EXCEPTION_TYPE``.
 
 * Fully support (and test) multibyte encodings.
 
